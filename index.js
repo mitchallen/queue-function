@@ -1,29 +1,28 @@
+import {makeLogger} from './logger.js';
 
-
-function createQueue(options = {}) {
+function makeQueue(options = {}) {
 
     let {
+        verbose = true,
         maxSize = 10,
         items = [],
+        name = undefined,
     } = options;
+
+    let logger = makeLogger({verbose, name});
 
     function getMaxSize() {
         return maxSize;
     }
 
-    function log() {
-        console.log(items);
-    }
-
+    let log = () => logger.log(JSON.stringify(items));
     let isEmpty = () => items.length === 0;
     let isFull = () => items.length >= maxSize;
 
     function enqueue(element) {
         if (isFull()) {
-            console.log("[QUEUE] overflow!");
-            return;
-        }
-        if (Array.isArray(element)) {
+            log("overflow!");
+        } else if (Array.isArray(element)) {
             // push array
             element.forEach(el => items.push(el));
         } else {
@@ -34,7 +33,7 @@ function createQueue(options = {}) {
 
     function dequeue() {
         if (isEmpty()) {
-            console.log("[QUEUE] Underflow!");
+            log("Underflow!");
             return;
         }
         return items.shift();
@@ -42,7 +41,7 @@ function createQueue(options = {}) {
 
     function peek() {
         if (this.isEmpty()) {
-            console.log("[QUEUE] Underflow!");
+            log("[QUEUE] Underflow!");
             return;
         }
         return items[0];
@@ -65,7 +64,10 @@ function createQueue(options = {}) {
 };
 
 
-let q = createQueue({ maxSize: 100 });
+let q = makeQueue({ 
+    maxSize: 100,
+    name: 'Q1', 
+});
 
 q.enqueue('Alpha');
 q.enqueue('Beta');
